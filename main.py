@@ -12,8 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
 NOTIFY_CHANNEL_ID = os.getenv("NOTIFY_CHANNEL_ID")
-NOTIFY_TIME = os.getenv("NOTIFY_TIME")
-
+NOTIFY_TIME = os.getenv("NOTIFY_TIME", default="Sunday-14:00")
 client = commands.Bot(command_prefix="!")
 
 
@@ -21,7 +20,7 @@ def kktix_count(web):
     r = requests.get(web)
     soup = BeautifulSoup(r.text, "html.parser")
     ticket_count = soup.find("span", class_="info-count")
-    if ticket_count != None:
+    if ticket_count:
         return ticket_count.text
     else:
         return "N/A"
