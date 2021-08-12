@@ -21,7 +21,10 @@ def kktix_count(web):
     r = requests.get(web)
     soup = BeautifulSoup(r.text, "html.parser")
     ticket_count = soup.find("span", class_="info-count")
-    return ticket_count.text
+    if ticket_count != None:
+        return ticket_count.text
+    else:
+        return "N/A"
 
 
 def kktix_pycontw2021_all():
