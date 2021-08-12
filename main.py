@@ -12,8 +12,7 @@ from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
 NOTIFY_CHANNEL_ID = os.getenv("NOTIFY_CHANNEL_ID")
-target_time = str("Sunday 14:00")
-
+NOTIFY_TIME = os.getenv("NOTIFY_TIME", default="Sunday-14:00")
 client = commands.Bot(command_prefix="!")
 
 
@@ -21,7 +20,10 @@ def kktix_count(web):
     r = requests.get(web)
     soup = BeautifulSoup(r.text, "html.parser")
     ticket_count = soup.find("span", class_="info-count")
-    return ticket_count.text
+    if ticket_count:
+        return ticket_count.text
+    else:
+        return "N/A"
 
 
 def kktix_pycontw2021_all():
@@ -43,8 +45,8 @@ async def time_task():
     await client.wait_until_ready()
     client.channel = client.get_channel(int(NOTIFY_CHANNEL_ID))
     while not client.is_closed():
-        now_time = datetime.datetime.now().strftime("%A %H:%M")
-        if now_time == target_time:
+        now_time = datetime.datetime.now().strftime("%A-%H:%M")
+        if now_time == NOTIFY_TIME:
             msg = "PyCon TW 2021 本週售票狀況為：\n" + kktix_pycontw2021_all()
             await client.channel.send(msg)
             await asyncio.sleep(60)
