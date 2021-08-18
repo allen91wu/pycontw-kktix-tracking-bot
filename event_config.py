@@ -1,7 +1,7 @@
 """
 For user to setting the event config.
 """
-# Your event name
+# Event name
 EVENT_NAME = "PyCon TW 2021"
 # The ticket type and kktix pages link
 EVENT_TICKET = {
