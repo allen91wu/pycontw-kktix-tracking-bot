@@ -8,11 +8,13 @@ from bs4 import BeautifulSoup
 from discord import channel  # noqa: F401
 from discord.ext import commands
 from dotenv import load_dotenv
+from event_config import EVENT_NAME, EVENT_TICKET
 
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
 NOTIFY_CHANNEL_ID = os.getenv("NOTIFY_CHANNEL_ID")
 NOTIFY_TIME = os.getenv("NOTIFY_TIME", default="Sunday-14:00")
+
 client = commands.Bot(command_prefix="!")
 
 
@@ -26,18 +28,18 @@ def kktix_count(web):
         return "N/A"
 
 
-def kktix_pycontw2021_all():
-    individual = "個人票：" + kktix_count("https://pycontw.kktix.cc/events/2021-individual")
-    corporate = "企業票：" + kktix_count("https://pycontw.kktix.cc/events/2021-corporate")
-    reserved = "保留票：" + kktix_count("https://pycontw.kktix.cc/events/2021-reserved")
-    combined = individual + "\n" + corporate + "\n" + reserved
-    return combined
+def event_ticket_count():
+    count_data = ""
+    for ticket in EVENT_TICKET.items():
+        ticket_count = f"{ticket[0]}：{kktix_count(ticket[1])}"
+        count_data += f"{ticket_count}\n"
+    return count_data
 
 
 @client.command()
 async def kktix_status(ctx):
     await ctx.message.delete()
-    msg = "PyCon TW 2021 目前售票狀況為：\n" + kktix_pycontw2021_all()
+    msg = f"{EVENT_NAME} 目前售票狀況為：\n{event_ticket_count()}"
     await ctx.send(msg)
 
 
@@ -47,7 +49,7 @@ async def time_task():
     while not client.is_closed():
         now_time = datetime.datetime.now().strftime("%A-%H:%M")
         if now_time == NOTIFY_TIME:
-            msg = "PyCon TW 2021 本週售票狀況為：\n" + kktix_pycontw2021_all()
+            msg = f"{EVENT_NAME} 本週售票狀況為：\n{event_ticket_count()}"
             await client.channel.send(msg)
             await asyncio.sleep(60)
         else:
@@ -58,7 +60,7 @@ async def time_task():
 @client.event
 async def on_ready():
     client.loop.create_task(time_task())
-    print(">> Bot is online <<")
+    print(f"{client.user} is online")
 
 
 client.run(TOKEN)
